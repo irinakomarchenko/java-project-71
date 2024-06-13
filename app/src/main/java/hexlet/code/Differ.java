@@ -1,18 +1,50 @@
 package hexlet.code;
 
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.io.IOException;
-import java.util.stream.Collectors;
-import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
 
 public class Differ {
-    public static String generate(String filePath1, String filePath2) throws IOException {
-        List<String> file1Lines = Files.readAllLines(Paths.get(filePath1));
-        List<String> file2Lines = Files.readAllLines(Paths.get(filePath2));
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
-        return file1Lines.stream()
-                .filter(line -> !file2Lines.contains(line))
-                .collect(Collectors.joining("\n"));
+    public static String generate(String filePath1, String filePath2) throws IOException {
+        JsonNode file1Json = MAPPER.readTree(Files.readAllBytes(Paths.get(filePath1)));
+        JsonNode file2Json = MAPPER.readTree(Files.readAllBytes(Paths.get(filePath2)));
+
+        Map<String, JsonNode> combinedKeys = new TreeMap<>();
+        file1Json.fieldNames().forEachRemaining(key -> combinedKeys.put(key, file1Json.get(key)));
+        file2Json.fieldNames().forEachRemaining(key -> combinedKeys.put(key, file2Json.get(key)));
+
+
+        StringBuilder result = new StringBuilder("{\n");
+
+        for (String key : combinedKeys.keySet()) {
+            JsonNode value1 = file1Json.get(key);
+            JsonNode value2 = file2Json.get(key);
+
+            if (value1 != null && value2 != null && value1.equals(value2)) {
+                result.append("    ").append(key).append(": ").append(value1).append("\n");
+            } else if (value1 != null && value2 != null) {
+                result.append("  - ").append(key).append(": ").append(value1).append("\n");
+                result.append("  + ").append(key).append(": ").append(value2).append("\n");
+            } else if (value1 != null) {
+                result.append("  - ").append(key).append(": ").append(value1).append("\n");
+            } else if (value2 != null) {
+                result.append("  + ").append(key).append(": ").append(value2).append("\n");
+            }
+        }
+
+        result.append("}");
+
+        return result.toString();
     }
 }
+
+

@@ -30,8 +30,14 @@ tasks.named<JavaExec>("run") {
         implementation("info.picocli:picocli:4.7.0")
         implementation("org.apache.commons:commons-lang3:3.14.0")
         implementation("org.apache.commons:commons-collections4:4.4")
+        implementation("com.fasterxml.jackson.core:jackson-databind:2.13.0")
+        implementation("com.fasterxml.jackson.core:jackson-core:2.13.0")
+        implementation("com.fasterxml.jackson.core:jackson-databind")
+        implementation("com.fasterxml.jackson.core:jackson-annotations")
+        implementation("com.fasterxml.jackson.core:jackson-core")
         testImplementation(platform("org.junit:junit-bom:5.10.1"))
         testImplementation("org.junit.jupiter:junit-jupiter")
+        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
     }
 
     tasks.test {
