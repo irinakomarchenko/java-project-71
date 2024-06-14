@@ -25,26 +25,40 @@ public class Differ {
 
         StringBuilder result = new StringBuilder("{\n");
 
-        for (String key : combinedKeys.keySet()) {
+        combinedKeys.forEach((key, value) -> {
             JsonNode value1 = file1Json.get(key);
             JsonNode value2 = file2Json.get(key);
 
-            if (value1 != null && value2 != null && value1.equals(value2)) {
-                result.append("    ").append(key).append(": ").append(value1).append("\n");
-            } else if (value1 != null && value2 != null) {
-                result.append("  - ").append(key).append(": ").append(value1).append("\n");
-                result.append("  + ").append(key).append(": ").append(value2).append("\n");
-            } else if (value1 != null) {
-                result.append("  - ").append(key).append(": ").append(value1).append("\n");
-            } else if (value2 != null) {
-                result.append("  + ").append(key).append(": ").append(value2).append("\n");
+            switch (compareValues(value1, value2)) {
+                case "unchanged" -> result.append("    ").append(key).append(": ").append(value1).append("\n");
+                case "changed" -> {
+                    result.append("  - ").append(key).append(": ").append(value1).append("\n");
+                    result.append("  + ").append(key).append(": ").append(value2).append("\n");
+                }
+                case "removed" -> result.append("  - ").append(key).append(": ").append(value1).append("\n");
+                case "added" -> result.append("  + ").append(key).append(": ").append(value2).append("\n");
+                default -> throw new IllegalStateException("Unexpected value: " + compareValues(value1, value2));
             }
-        }
+        });
 
         result.append("}");
 
         return result.toString();
     }
+
+    private static String compareValues(JsonNode value1, JsonNode value2) {
+        if (value1 != null && value2 != null && value1.equals(value2)) {
+            return "unchanged";
+        }
+        if (value1 != null && value2 != null) {
+            return "changed";
+        }
+        if (value1 != null) {
+            return "removed";
+        }
+        return "added";
+    }
 }
+
 
 
