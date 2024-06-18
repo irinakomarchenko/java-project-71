@@ -16,7 +16,6 @@ jobs:
           distribution: 'corretto'
           java-version: '21'
 
-      - name: Build and Test
       - run: make lint
       - run: make build
       - run: make test
