@@ -1,0 +1,43 @@
+name: Build and Test
+
+on: [ push, pull_request ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Generate Jacoco report
+        run: ./gradlew jacocoTestReport
+
+      - name: Download CodeClimate Test Reporter
+        run: curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+
+      - name: Make cc-test-reporter executable
+        run: chmod +x ./cc-test-reporter
+
+      - name: Before-build coverage
+        run: ./cc-test-reporter before-build
+        env:
+                CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+
+      - name: Upload coverage to CodeClimate
+        run: ./cc-test-reporter format-coverage build/reports/jacoco/test/jacocoTestReport.xml
+        env:
+                CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+
+      - name: After-build coverage
+        run: ./cc-test-reporter after-build --exit-code ${{ job.status }}
+        env:
+                CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
