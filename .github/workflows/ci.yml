@@ -16,20 +16,16 @@ jobs:
           distribution: 'corretto'
           java-version: '21'
 
-      - name: Setup Gradle
+      - name: Buils with Gradle
         uses: gradle/actions/setup-gradle@v3
-
-      - run: cd app
-      - run: gradle checkstyleMain
-      - run: gradle build
-      - run: gradle test
-
-      - name: Test & publish code coverage
-        # Publish code coverage on Code Climate
-        # https://github.com/paambaati/codeclimate-action
+        with:
+          arguments: build
+          build-root-directory: ./app
+      - name: Publish code coverage
         uses: paambaati/codeclimate-action@v8.0.0
         env:
-          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+          CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
+          JACOCO_SOURCE_PATH: app/src/main/java
         with:
-          coverageCommand: gradle jacocoTestReport
-          debug: true
+          coverageCommand: make report
+          coverageLocations: ${{github.workspace}}/app/build/reports/jacoco/test/jacocoTestReport.xml:jacoco
