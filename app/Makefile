@@ -1,19 +1,14 @@
+run-dist:
+	./build/install/app/bin/app
+
 lint:
-	gradle checkstyleMain
+	./gradlew checkstyleMain
 
 build:
-	gradle build
-
-.PHONY: build
-
-test:
-	gradle test
+	./gradlew build
 
 report:
-	gradle jacocoTestReport
+	./gradlew jacocoTestReport
 
-install:
-	gradle installDist
-
-run:
-	./build/install/app/bin/app
+	
+.PHONY: build
