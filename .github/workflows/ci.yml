@@ -19,9 +19,9 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - run: make lint
-      - run: make build
-      - run: make test
+      - run: gradle checkstyleMain
+      - run: gradle build
+      - run: gradle test
 
       - name: Test & publish code coverage
         # Publish code coverage on Code Climate
@@ -30,5 +30,5 @@ jobs:
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         with:
-          coverageCommand: make report
+          coverageCommand: gradle jacocoTestReport
           debug: true
