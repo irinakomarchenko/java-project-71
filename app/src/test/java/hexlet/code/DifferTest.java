@@ -1,4 +1,5 @@
-import hexlet.code.Differ;
+package hexlet.code;
+
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
