@@ -9,6 +9,7 @@ plugins {
     id("io.freefair.lombok") version "8.6"
     id("com.github.ben-manes.versions") version "0.50.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("jacoco")
 }
 
 group = "hexlet.code"
@@ -52,7 +53,15 @@ tasks.named<JavaExec>("run") {
             showStandardStreams = true
         }
     }
+jacoco {
+    toolVersion = "0.8.6"
+}
 
-
-//tasks.jacocoTestReport { reports { xml.required.set(true) } }
+tasks.jacocoTestReport {
+    reports {
+        xml.required.set(true)
+        csv.required.set(false)
+        html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
+    }
+}
 
