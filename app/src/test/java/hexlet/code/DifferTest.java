@@ -3,64 +3,56 @@ package hexlet.code;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class DifferTest {
-
-    private static final String FILE1_PATH = "src/test/resources/file1.json";
-    private static final String FILE2_PATH = "src/test/resources/file2.json";
-    private static final String EXPECTED_RESULT = "{\n"
-            + "  - follow: false\n"
-            + "    host: hexlet.io\n"
-            + "  - proxy: 123.234.53.22\n"
-            + "  - timeout: 50\n"
-            + "  + timeout: 20\n"
-            + "  + verbose: true\n"
-            + "}";
+public class DifferTest {
 
     @Test
-    void testGenerate() throws IOException {
-        String result = Differ.generate(FILE1_PATH, FILE2_PATH);
-        assertEquals(EXPECTED_RESULT, result);
-    }
-
-    @Test
-    void testGenerateWithEqualFiles() throws IOException {
-        String result = Differ.generate(FILE1_PATH, FILE1_PATH);
-        String expected = "{\n"
-                + "    follow: false\n"
-                + "    host: hexlet.io\n"
-                + "    proxy: 123.234.53.22\n"
-                + "    timeout: 50\n"
-                + "}";
-        assertEquals(expected, result);
-    }
-
-    @Test
-    void testGenerateWithEmptyFile() throws IOException {
-        String emptyFilePath = "src/test/resources/empty.json";
-        String result = Differ.generate(FILE1_PATH, emptyFilePath);
-        String expected = "{\n"
-                + "  - follow: false\n"
-                + "  - host: hexlet.io\n"
+    void testGenerateStylishYaml() throws Exception {
+        String filepath1 = "src/test/resources/filepath1.yml";
+        String filepath2 = "src/test/resources/filepath2.yml";
+        String expectedOutput = "{\n"
+                + "  follow: false\n"
+                + "  host: hexlet.io\n"
                 + "  - proxy: 123.234.53.22\n"
                 + "  - timeout: 50\n"
+                + "  + timeout: 20\n"
+                + "  + verbose: true\n"
                 + "}";
-        assertEquals(expected, result);
+
+        String result = Differ.generate(filepath1, filepath2, "stylish");
+        assertEquals(expectedOutput, result);
     }
 
     @Test
-    void testGenerateWithNonExistentFile() {
-        String nonExistentFilePath = "src/test/resources/nonexistent.json";
-        IOException exception = assertThrows(IOException.class, () -> {
-            Differ.generate(FILE1_PATH, nonExistentFilePath);
-        });
+    void testGeneratePlainYaml() throws Exception {
+        String filepath1 = "src/test/resources/filepath1.yml";
+        String filepath2 = "src/test/resources/filepath2.yml";
+        String expectedOutput = "Property 'follow' was removed\n"
+                + "Property 'proxy' was removed\n"
+                + "Property 'timeout' was updated. From 50 to 20\n"
+                + "Property 'verbose' was added with value: true";
 
+        String result = Differ.generate(filepath1, filepath2, "plain");
+        assertEquals(expectedOutput, result);
+    }
 
-        String expectedMessage = "src/test/resources/nonexistent.json";
-        String actualMessage = exception.getMessage().replace("\\", "/");
-        assertEquals(expectedMessage, actualMessage);
+    @Test
+    void testGenerateJsonYaml() throws Exception {
+        String filepath1 = "src/test/resources/filepath1.yml";
+        String filepath2 = "src/test/resources/filepath2.yml";
+        String expectedOutput = "[\n"
+                + "  {\"key\":\"follow\",\"oldValue\":false,\"newValue\":null,\"type\":\"removed\"},\n"
+                + "  {\"key\":\"host\",\"oldValue\":\"hexlet.io\",\"newValue\":\"hexlet.io\",\"type\":\"unchanged\"},\n"
+                + "  {\"key\":\"proxy\",\"oldValue\":\"123.234.53.22\",\"newValue\":null,\"type\":\"removed\"},\n"
+                + "  {\"key\":\"timeout\",\"oldValue\":50,\"newValue\":20,\"type\":\"updated\"},\n"
+                + "  {\"key\":\"verbose\",\"oldValue\":null,\"newValue\":true,\"type\":\"added\"}\n"
+                + "]";
+
+        String result = Differ.generate(filepath1, filepath2, "json");
+        assertEquals(expectedOutput, result);
     }
 }

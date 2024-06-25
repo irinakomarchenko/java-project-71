@@ -1,63 +1,61 @@
 package hexlet.code;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import hexlet.code.formatters.Formatter;
+import hexlet.code.formatters.JsonFormatter;
+import hexlet.code.formatters.PlainFormatter;
+import hexlet.code.formatters.StylishFormatter;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class Differ {
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final Formatter STYLISH_FORMATTER = new StylishFormatter();
+    private static final Formatter JSON_FORMATTER = new JsonFormatter();
+    private static final Formatter PLAIN_FORMATTER = new PlainFormatter();
 
-    public static String generate(String filePath1, String filePath2) throws IOException {
-        JsonNode file1Json = MAPPER.readTree(Files.readAllBytes(Paths.get(filePath1)));
-        JsonNode file2Json = MAPPER.readTree(Files.readAllBytes(Paths.get(filePath2)));
+    public static String generate(String filepath1, String filepath2, String format) throws Exception {
+        String file1Content = readFileToString(filepath1);
+        String file2Content = readFileToString(filepath2);
 
-        Map<String, JsonNode> combinedKeys = new TreeMap<>();
-        file1Json.fieldNames().forEachRemaining(key -> combinedKeys.put(key, file1Json.get(key)));
-        file2Json.fieldNames().forEachRemaining(key -> combinedKeys.put(key, file2Json.get(key)));
+        String fileExtension1 = getFileExtension(filepath1);
+        String fileExtension2 = getFileExtension(filepath2);
 
-        StringBuilder result = new StringBuilder("{\n");
+        Map<String, Object> map1 = Parser.parse(file1Content, fileExtension1);
+        Map<String, Object> map2 = Parser.parse(file2Content, fileExtension2);
 
-        for (String key : combinedKeys.keySet()) {
-            JsonNode value1 = file1Json.get(key);
-            JsonNode value2 = file2Json.get(key);
+        List<DiffProperty> diff = TreeDiffer.compareData(map1, map2);
 
-            switch (compareValues(value1, value2)) {
-                case "unchanged" -> result.append("    ").append(key).append(": ").append(formatValue(value1))
-                        .append("\n");
-                case "changed" -> {
-                    result.append("  - ").append(key).append(": ").append(formatValue(value1)).append("\n");
-                    result.append("  + ").append(key).append(": ").append(formatValue(value2)).append("\n");
-                }
-                case "deleted" -> result.append("  - ").append(key).append(": ").append(formatValue(value1))
-                        .append("\n");
-                case "added" -> result.append("  + ").append(key).append(": ").append(formatValue(value2))
-                        .append("\n");
-                default -> throw new IllegalStateException("Unexpected value: " + compareValues(value1, value2));
-            }
-        }
-
-        result.append("}");
-        return result.toString();
+        return format(format, diff);
     }
 
-    private static String compareValues(JsonNode value1, JsonNode value2) {
-        if (value1 != null && value2 != null && value1.equals(value2)) {
-            return "unchanged";
-        } else if (value1 != null && value2 != null) {
-            return "changed";
-        } else if (value1 != null) {
-            return "deleted";
-        } else {
-            return "added";
-        }
+    public static String generate(String filepath1, String filepath2) throws Exception {
+        return generate(filepath1, filepath2, "stylish");
     }
 
-    private static String formatValue(JsonNode value) {
-        return value.isTextual() ? value.asText() : value.toString();
+    private static String readFileToString(String filepath) throws IOException {
+        Path path = Path.of(filepath).toAbsolutePath().normalize();
+        return Files.readString(path);
+    }
+
+    private static String getFileExtension(String filepath) {
+        String fullPath = Path.of(filepath).toAbsolutePath().normalize().toString();
+        int index = fullPath.lastIndexOf('.');
+        return index == -1 ? null : fullPath.substring(index + 1).toLowerCase();
+    }
+
+    private static String format(String format, List<DiffProperty> diff) throws Exception {
+        switch (format) {
+            case "stylish":
+                return STYLISH_FORMATTER.format(diff);
+            case "json":
+                return JSON_FORMATTER.format(diff);
+            case "plain":
+                return PLAIN_FORMATTER.format(diff);
+            default:
+                throw new IllegalArgumentException("Unsupported format: " + format);
+        }
     }
 }

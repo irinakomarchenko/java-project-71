@@ -16,16 +16,10 @@ public class App implements Callable<Integer> {
             defaultValue = "stylish")
     private String format;
 
-    @Option(names = {"-h", "--help"}, usageHelp = true, description = "Show this help message and exit.")
-    private boolean helpRequested;
-
-    @Option(names = {"-V", "--version"}, versionHelp = true, description = "Print version information and exit.")
-    private boolean versionRequested;
-
-    @Parameters(index = "0", description = "The first file to compare.", defaultValue = "")
+    @Parameters(index = "0", description = "The first file to compare.")
     private String filePath1;
 
-    @Parameters(index = "1", description = "The second file to compare.", defaultValue = "")
+    @Parameters(index = "1", description = "The second file to compare.")
     private String filePath2;
 
     public static void main(String[] args) {
@@ -35,13 +29,13 @@ public class App implements Callable<Integer> {
 
     @Override
     public Integer call() {
-        if (filePath1.isEmpty() || filePath2.isEmpty()) {
+        if (filePath1 == null || filePath2 == null) {
             System.out.println("Please provide two file paths for comparison.");
             return 1;
         }
 
         try {
-            String result = Differ.generate(filePath1, filePath2);
+            String result = Differ.generate(filePath1, filePath2, format);
             System.out.println(result);
             return 0;
         } catch (IOException e) {
@@ -53,4 +47,3 @@ public class App implements Callable<Integer> {
         }
     }
 }
-
