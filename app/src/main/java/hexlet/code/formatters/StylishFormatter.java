@@ -10,13 +10,19 @@ public class StylishFormatter implements Formatter {
         StringBuilder result = new StringBuilder("{\n");
         for (DiffProperty property : diff) {
             switch (property.getType()) {
-                case ADDED -> result.append("  + ").append(property.getKey()).append(": ").append(property.getNewValue()).append("\n");
-                case REMOVED -> result.append("  - ").append(property.getKey()).append(": ").append(property.getOldValue()).append("\n");
+                case ADDED -> result.append("  + ").append(property.getKey()).append(": ").append(property
+                        .getNewValue()).append("\n");
+                case REMOVED -> result.append("  - ").append(property.getKey()).append(": ").append(property
+                        .getOldValue()).append("\n");
                 case CHANGED -> {
-                    result.append("  - ").append(property.getKey()).append(": ").append(property.getOldValue()).append("\n");
-                    result.append("  + ").append(property.getKey()).append(": ").append(property.getNewValue()).append("\n");
+                    result.append("  - ").append(property.getKey()).append(": ").append(property.getOldValue())
+                            .append("\n");
+                    result.append("  + ").append(property.getKey()).append(": ").append(property.getNewValue())
+                            .append("\n");
                 }
-                case UNCHANGED -> result.append("    ").append(property.getKey()).append(": ").append(property.getOldValue()).append("\n");
+                case UNCHANGED -> result.append("    ").append(property.getKey()).append(": ").append(property
+                        .getOldValue()).append("\n");
+                default -> throw new IllegalArgumentException("Unexpected property type: " + property.getType());
             }
         }
         result.append("}");

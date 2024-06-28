@@ -35,7 +35,7 @@ public class Differ {
         return generate(filepath1, filepath2, "stylish");
     }
 
-    private static String readFileToString(String filepath) throws IOException {
+    public static String readFileToString(String filepath) throws IOException {
         Path path = Path.of(filepath).toAbsolutePath().normalize();
         return Files.readString(path);
     }
