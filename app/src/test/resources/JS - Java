@@ -1,0 +1,260 @@
+Вот эквивалентный код на Java для вашей логики на JavaScript. В нём используются классы для представления узлов дерева различий и методы для построения дерева различий:
+
+java
+Copy code
+package hexlet.code;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class DiffTreeBuilder {
+
+    public enum NodeType {
+        ADDED,
+        REMOVED,
+        UNCHANGED,
+        COMPOUND
+    }
+
+    public static class Node {
+        private final String key;
+        private final Object value;
+        private final NodeType type;
+        private final List<Node> children;
+
+        public Node(String key, Object value, NodeType type, List<Node> children) {
+            this.key = key;
+            this.value = value;
+            this.type = type;
+            this.children = children;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public Object getValue() {
+            return value;
+        }
+
+        public NodeType getType() {
+            return type;
+        }
+
+        public List<Node> getChildren() {
+            return children;
+        }
+    }
+
+    private static Node buildNode(String key, Object value, NodeType type, List<Node> children) {
+        return new Node(key, value, type, children);
+    }
+
+    public static List<Node> buildDiffTree(Map<String, Object> obj1, Map<String, Object> obj2) {
+        Set<String> keys = new TreeSet<>(obj1.keySet());
+        keys.addAll(obj2.keySet());
+
+        List<Node> result = keys.stream().map(key -> {
+            if (!obj1.containsKey(key)) {
+                return buildNode(key, obj2.get(key), NodeType.ADDED, Collections.emptyList());
+            }
+            if (!obj2.containsKey(key)) {
+                return buildNode(key, obj1.get(key), NodeType.REMOVED, Collections.emptyList());
+            }
+            if (obj1.get(key) instanceof Map && obj2.get(key) instanceof Map) {
+                List<Node> children = buildDiffTree((Map<String, Object>) obj1.get(key), (Map<String, Object>) obj2.get(key));
+                return buildNode(key, null, NodeType.COMPOUND, children);
+            }
+            if (Objects.equals(obj1.get(key), obj2.get(key))) {
+                return buildNode(key, obj1.get(key), NodeType.UNCHANGED, Collections.emptyList());
+            }
+            return Arrays.asList(
+                    buildNode(key, obj1.get(key), NodeType.REMOVED, Collections.emptyList()),
+                    buildNode(key, obj2.get(key), NodeType.ADDED, Collections.emptyList())
+            ).stream().flatMap(Collection::stream).collect(Collectors.toList()).get(0);
+        }).flatMap(Collection::stream).collect(Collectors.toList());
+
+        return result;
+    }
+}
+Этот код создаёт дерево различий для двух переданных карт (maps), используя узлы для представления различий. Узлы могут быть добавлены, удалены, неизменными или составными. Составные узлы используются для вложенных объектов.
+
+дай подробное обьяснение
+ChatGPT
+Конечно! Давайте рассмотрим каждую часть Java-кода и подробно объясним, что она делает.
+
+1. Пакет и импорты
+java
+Copy code
+package hexlet.code;
+
+import java.util.*;
+import java.util.stream.Collectors;
+Мы объявляем, что наш класс находится в пакете hexlet.code. Импортируем необходимые классы из стандартной библиотеки Java.
+
+2. Основной класс и типы узлов
+java
+Copy code
+public class DiffTreeBuilder {
+
+    public enum NodeType {
+        ADDED,
+        REMOVED,
+        UNCHANGED,
+        COMPOUND
+    }
+Мы создаем основной класс DiffTreeBuilder. Внутри него объявляем перечисление (enum) NodeType, которое определяет типы узлов различий:
+
+ADDED: узел, добавленный во второй объект.
+REMOVED: узел, удаленный из первого объекта.
+UNCHANGED: узел, который не изменился.
+COMPOUND: узел, который является вложенным объектом.
+3. Класс узла
+java
+Copy code
+    public static class Node {
+        private final String key;
+        private final Object value;
+        private final NodeType type;
+        private final List<Node> children;
+
+        public Node(String key, Object value, NodeType type, List<Node> children) {
+            this.key = key;
+            this.value = value;
+            this.type = type;
+            this.children = children;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public Object getValue() {
+            return value;
+        }
+
+        public NodeType getType() {
+            return type;
+        }
+
+        public List<Node> getChildren() {
+            return children;
+        }
+    }
+Здесь мы создаем класс Node, который представляет узел в дереве различий. Узел содержит:
+
+key: ключ узла.
+value: значение узла.
+type: тип узла, определенный в перечислении NodeType.
+children: список дочерних узлов (используется для составных узлов).
+4. Метод для создания узлов
+java
+Copy code
+    private static Node buildNode(String key, Object value, NodeType type, List<Node> children) {
+        return new Node(key, value, type, children);
+    }
+Этот метод используется для создания нового узла. Он принимает ключ, значение, тип и список дочерних узлов, и возвращает новый объект Node.
+
+5. Метод для построения дерева различий
+java
+Copy code
+    public static List<Node> buildDiffTree(Map<String, Object> obj1, Map<String, Object> obj2) {
+        Set<String> keys = new TreeSet<>(obj1.keySet());
+        keys.addAll(obj2.keySet());
+
+        List<Node> result = keys.stream().map(key -> {
+            if (!obj1.containsKey(key)) {
+                return buildNode(key, obj2.get(key), NodeType.ADDED, Collections.emptyList());
+            }
+            if (!obj2.containsKey(key)) {
+                return buildNode(key, obj1.get(key), NodeType.REMOVED, Collections.emptyList());
+            }
+            if (obj1.get(key) instanceof Map && obj2.get(key) instanceof Map) {
+                List<Node> children = buildDiffTree((Map<String, Object>) obj1.get(key), (Map<String, Object>) obj2.get(key));
+                return buildNode(key, null, NodeType.COMPOUND, children);
+            }
+            if (Objects.equals(obj1.get(key), obj2.get(key))) {
+                return buildNode(key, obj1.get(key), NodeType.UNCHANGED, Collections.emptyList());
+            }
+            return Arrays.asList(
+                    buildNode(key, obj1.get(key), NodeType.REMOVED, Collections.emptyList()),
+                    buildNode(key, obj2.get(key), NodeType.ADDED, Collections.emptyList())
+            ).stream().flatMap(Collection::stream).collect(Collectors.toList()).get(0);
+        }).flatMap(Collection::stream).collect(Collectors.toList());
+
+        return result;
+    }
+}
+Пошаговое объяснение метода buildDiffTree
+Сбор всех ключей:
+
+java
+Copy code
+Set<String> keys = new TreeSet<>(obj1.keySet());
+keys.addAll(obj2.keySet());
+Мы создаем множество всех ключей, которые присутствуют в обоих объектах, используя TreeSet для автоматической сортировки ключей.
+
+Обработка каждого ключа:
+
+java
+Copy code
+List<Node> result = keys.stream().map(key -> {
+    // Логика обработки каждого ключа
+}).flatMap(Collection::stream).collect(Collectors.toList());
+Используем поток (stream) для обработки каждого ключа. Внутри потока мы определяем, как обрабатывать каждый ключ, в зависимости от его присутствия в обоих объектах и типа значения.
+
+Узел добавлен (added):
+
+java
+Copy code
+if (!obj1.containsKey(key)) {
+    return buildNode(key, obj2.get(key), NodeType.ADDED, Collections.emptyList());
+}
+Если ключ отсутствует в первом объекте, но присутствует во втором, мы создаем узел с типом ADDED.
+
+Узел удален (removed):
+
+java
+Copy code
+if (!obj2.containsKey(key)) {
+    return buildNode(key, obj1.get(key), NodeType.REMOVED, Collections.emptyList());
+}
+Если ключ присутствует в первом объекте, но отсутствует во втором, мы создаем узел с типом REMOVED.
+
+Составной узел (compound):
+
+java
+Copy code
+if (obj1.get(key) instanceof Map && obj2.get(key) instanceof Map) {
+    List<Node> children = buildDiffTree((Map<String, Object>) obj1.get(key), (Map<String, Object>) obj2.get(key));
+    return buildNode(key, null, NodeType.COMPOUND, children);
+}
+Если значения по ключу в обоих объектах являются вложенными объектами (Map), мы рекурсивно строим дерево различий для этих вложенных объектов и создаем составной узел.
+
+Неизмененный узел (unchanged):
+
+java
+Copy code
+if (Objects.equals(obj1.get(key), obj2.get(key))) {
+    return buildNode(key, obj1.get(key), NodeType.UNCHANGED, Collections.emptyList());
+}
+Если значения по ключу в обоих объектах одинаковы, мы создаем узел с типом UNCHANGED.
+
+Измененный узел (changed):
+
+java
+Copy code
+return Arrays.asList(
+        buildNode(key, obj1.get(key), NodeType.REMOVED, Collections.emptyList()),
+        buildNode(key, obj2.get(key), NodeType.ADDED, Collections.emptyList())
+).stream().flatMap(Collection::stream).collect(Collectors.toList()).get(0);
+Если значения по ключу отличаются, мы создаем два узла: один с типом REMOVED для старого значения и один с типом ADDED для нового значения.
+
+Возврат результата:
+
+java
+Copy code
+return result;
+Мы собираем все узлы в список и возвращаем его.
+
+Этот метод создает дерево различий между двумя объектами, где каждый узел представляет изменения в соответствующем ключе.

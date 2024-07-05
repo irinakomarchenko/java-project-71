@@ -14,7 +14,9 @@ plugins {
 group = "hexlet.code"
 version = "1.0-SNAPSHOT"
 
-application {mainClass.set("hexlet.code.App") }
+application {
+    mainClass.set("hexlet.code.App")
+}
 
 tasks.named<JavaExec>("run") {
     args = listOf("")
@@ -25,30 +27,25 @@ repositories {
 }
 
 dependencies {
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
     implementation("info.picocli:picocli:4.7.0")
     implementation("org.apache.commons:commons-lang3:3.14.0")
     implementation("org.apache.commons:commons-collections4:4.4")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.0")
-    implementation("com.fasterxml.jackson.core:jackson-core:2.13.0")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind")
-    implementation("com.fasterxml.jackson.core:jackson-annotations")
-    implementation("com.fasterxml.jackson.core:jackson-core")
+
+    implementation ("com.fasterxml.jackson.core:jackson-databind:2.17.1")
+    implementation ("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.1")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.17.1")
+
+
     testImplementation(platform("org.junit:junit-bom:5.10.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.1")
 }
 
 tasks.test {
     useJUnitPlatform()
-    useJUnitPlatform()
     testLogging {
         exceptionFormat = TestExceptionFormat.FULL
         events = mutableSetOf(TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED)
-        // showStackTraces = true
-        // showCauses = true
         showStandardStreams = true
     }
 }

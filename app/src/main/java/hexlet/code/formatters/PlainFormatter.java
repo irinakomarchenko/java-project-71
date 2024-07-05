@@ -1,35 +1,44 @@
 package hexlet.code.formatters;
 
 import hexlet.code.DiffProperty;
-
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class PlainFormatter implements Formatter {
+
     @Override
     public String format(List<DiffProperty> diff) {
-        StringBuilder result = new StringBuilder();
-        for (DiffProperty property : diff) {
-            switch (property.getType()) {
-                case ADDED -> result.append("Property '").append(property.getKey())
-                        .append("' was added with value: ").append(formatValue(property.getNewValue())).append("\n");
-                case REMOVED -> result.append("Property '").append(property.getKey()).append("' was removed")
-                        .append("\n");
-                case CHANGED -> result.append("Property '").append(property.getKey())
-                        .append("' was updated. From ").append(formatValue(property.getOldValue()))
-                        .append(" to ").append(formatValue(property.getNewValue())).append("\n");
-                case UNCHANGED -> {
-                    // Do nothing for unchanged properties
-                }
-                default -> throw new IllegalArgumentException("Unexpected property type: " + property.getType());
-            }
-        }
-        return result.toString().trim();
+        return diff.stream()
+                .map(this::formatProperty)
+                .filter(property -> !property.isEmpty())
+                .collect(Collectors.joining("\n"));
+    }
+
+    private String formatProperty(DiffProperty property) {
+        return switch (property.getType()) {
+            case ADDED -> "Property '" + property.getKey() + "' was added with value: "
+                    + formatValue(property.getNewValue());
+            case REMOVED -> "Property '" + property.getKey() + "' was removed";
+            case CHANGED -> "Property '" + property.getKey() + "' was updated. From "
+                    + formatValue(property.getOldValue()) + " to " + formatValue(property
+                    .getNewValue());
+            case UNCHANGED -> "";
+            case COMPOUND -> "";
+            default -> throw new IllegalStateException("Unexpected value: "
+                    + property.getType());
+        };
     }
 
     private String formatValue(Object value) {
         if (value == null) {
             return "null";
+        } else if (value instanceof String) {
+            return "'" + value + "'";
+        } else if (value instanceof List || value instanceof Map) {
+            return "[complex value]";
         }
-        return value instanceof String ? "'" + value + "'" : String.valueOf(value);
+        return value.toString();
     }
 }
+

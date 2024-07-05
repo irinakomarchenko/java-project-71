@@ -1,0 +1,1093 @@
+На основе предыдущего контекста и изменений, которые мы внесли в класс TreeDiffer для поддержки построения дерева различий, а также учитывая, что DiffProperty 
+используется для представления отдельного свойства различия, мы можем определить два класса: Node для представления узлов в дереве различий и DiffProperty для
+ представления отдельного свойства различия.
+
+Класс Node
+java
+Copy code
+package hexlet.code;
+
+import java.util.List;
+import java.util.Objects;
+
+public class Node {
+    private final String key;
+    private final Object value;
+    private final NodeType type;
+    private final List<Node> children;
+
+    public Node(String key, Object value, NodeType type, List<Node> children) {
+        this.key = key;
+        this.value = value;
+        this.type = type;
+        this.children = children;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public Object getValue() {
+        return value;
+    }
+
+    public NodeType getType() {
+        return type;
+    }
+
+    public List<Node> getChildren() {
+        return children;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Node node = (Node) o;
+        return Objects.equals(key, node.key) &&
+                Objects.equals(value, node.value) &&
+                type == node.type &&
+                Objects.equals(children, node.children);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, value, type, children);
+    }
+
+    @Override
+    public String toString() {
+        return "Node{" +
+                "key='" + key + '\'' +
+                ", value=" + value +
+                ", type=" + type +
+                ", children=" + children +
+                '}';
+    }
+}
+Класс DiffProperty
+java
+Copy code
+package hexlet.code;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import java.util.List;
+import java.util.Objects;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({ "key", "type", "oldValue", "newValue", "children" })
+public class DiffProperty {
+    private final String key;
+    private final DiffType type;
+    private final Object oldValue;
+    private final Object newValue;
+    private final List<DiffProperty> children;
+
+    public DiffProperty(String key, Object oldValue, Object newValue, DiffType type) {
+        this(key, oldValue, newValue, type, null);
+    }
+
+    public DiffProperty(String key, Object oldValue, Object newValue, DiffType type, List<DiffProperty> children) {
+        this.key = key;
+        this.type = type;
+        this.oldValue = oldValue;
+        this.newValue = newValue;
+        this.children = children;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public DiffType getType() {
+        return type;
+    }
+
+    public Object getOldValue() {
+        return oldValue;
+    }
+
+    public Object getNewValue() {
+        return newValue;
+    }
+
+    public List<DiffProperty> getChildren() {
+        return children;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DiffProperty that = (DiffProperty) o;
+        return Objects.equals(key, that.key) &&
+                type == that.type &&
+                Objects.equals(oldValue, that.oldValue) &&
+                Objects.equals(newValue, that.newValue) &&
+                Objects.equals(children, that.children);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, type, oldValue, newValue, children);
+    }
+
+    @Override
+    public String toString() {
+        return "DiffProperty{" +
+                "key='" + key + '\'' +
+                ", type=" + type +
+                ", oldValue=" + oldValue +
+                ", newValue=" + newValue +
+                ", children=" + children +
+                '}';
+    }
+}
+Объяснение изменений:
+Класс Node:
+
+Node представляет узел в дереве различий и содержит поля key (ключ), value (значение), type (тип узла) и children (список дочерних узлов).
+Данный класс используется для построения дерева различий в методе buildDiffTree.
+Класс DiffProperty:
+
+DiffProperty остался без изменений по сравнению с вашей реализацией.
+Он представляет отдельное свойство различия с полями key (ключ), type (тип различия), oldValue (старое значение), newValue (новое значение) и children 
+(список дочерних свойств различия)
+Эти два класса должны быть корректно интегрированы с вашей системой сравнения и форматирования различий для обеспечения правильной работы тестов и формирования 
+ожидаемых результатов.
+
+В проекте необходимо использовать оба класса Node и DiffProperty, потому что они предназначены для разных целей:
+
+Node: Этот класс используется для построения дерева различий. Он представляет узел в этом дереве и содержит информацию о ключе, значении, типе узла (NodeType) и 
+списке дочерних узлов (children). Класс Node не является одним и тем же с DiffProperty, потому что он предназначен для другого уровня абстракции и используется в 
+контексте построения древовидной структуры различий.
+
+DiffProperty: Этот класс представляет отдельное свойство различия между двумя объектами. Он содержит информацию о ключе, типе различия (DiffType), старом и новом значении,
+ а также может включать список дочерних DiffProperty, если свойство различия является составным. Это класс, который используется для представления каждого конкретного различия 
+ между двумя объектами.
+
+Хотя оба класса имеют некоторое сходство в структуре (они оба содержат поля для ключа, старого и нового значения, а также дочерних элементов), их применение различно:
+
+Node используется для построения и представления структуры дерева различий.
+DiffProperty используется для представления конкретных свойств различия между объектами.
+Поэтому в проекте оба этих класса будут нужны для полноценного функционирования системы сравнения и представления различий между двумя объектами или структурами данных.
+
+Конечно, давайте рассмотрим, как работают вместе классы TreeDiffer, Node и DiffProperty для сравнения и представления различий между двумя объектами или структурами данных.
+
+1. Класс TreeDiffer
+java
+Copy code
+package hexlet.code;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
+
+public class TreeDiffer {
+
+    public static List<Node> buildDiffTree(Map<String, Object> obj1, Map<String, Object> obj2) {
+        Set<String> keys = new TreeSet<>(obj1.keySet());
+        keys.addAll(obj2.keySet());
+
+        List<Node> result = keys.stream().map(key -> {
+            if (!obj1.containsKey(key)) {
+                return buildNode(key, obj2.get(key), NodeType.ADDED, Collections.emptyList());
+            }
+            if (!obj2.containsKey(key)) {
+                return buildNode(key, obj1.get(key), NodeType.REMOVED, Collections.emptyList());
+            }
+            if (obj1.get(key) instanceof Map && obj2.get(key) instanceof Map) {
+                List<Node> children = buildDiffTree((Map<String, Object>) obj1.get(key), (Map<String, Object>) obj2.get(key));
+                return buildNode(key, null, NodeType.COMPOUND, children);
+            }
+            if (Objects.equals(obj1.get(key), obj2.get(key))) {
+                return buildNode(key, obj1.get(key), NodeType.UNCHANGED, Collections.emptyList());
+            }
+            return Arrays.asList(
+                    buildNode(key, obj1.get(key), NodeType.REMOVED, Collections.emptyList()),
+                    buildNode(key, obj2.get(key), NodeType.ADDED, Collections.emptyList())
+            ).stream().flatMap(Collection::stream).collect(Collectors.toList()).get(0);
+        }).flatMap(Collection::stream).collect(Collectors.toList());
+
+        return result;
+    }
+
+    private static Node buildNode(String key, Object value, NodeType type, List<Node> children) {
+        return new Node(key, value, type, children);
+    }
+}
+2. Класс Node
+java
+Copy code
+package hexlet.code;
+
+import java.util.List;
+import java.util.Objects;
+
+public class Node {
+    private final String key;
+    private final Object value;
+    private final NodeType type;
+    private final List<Node> children;
+
+    public Node(String key, Object value, NodeType type, List<Node> children) {
+        this.key = key;
+        this.value = value;
+        this.type = type;
+        this.children = children;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public Object getValue() {
+        return value;
+    }
+
+    public NodeType getType() {
+        return type;
+    }
+
+    public List<Node> getChildren() {
+        return children;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Node node = (Node) o;
+        return Objects.equals(key, node.key) &&
+                Objects.equals(value, node.value) &&
+                type == node.type &&
+                Objects.equals(children, node.children);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, value, type, children);
+    }
+
+    @Override
+    public String toString() {
+        return "Node{" +
+                "key='" + key + '\'' +
+                ", value=" + value +
+                ", type=" + type +
+                ", children=" + children +
+                '}';
+    }
+}
+3. Класс DiffProperty
+java
+Copy code
+package hexlet.code;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import java.util.List;
+import java.util.Objects;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({ "key", "type", "oldValue", "newValue", "children" })
+public class DiffProperty {
+    private final String key;
+    private final DiffType type;
+    private final Object oldValue;
+    private final Object newValue;
+    private final List<DiffProperty> children;
+
+    public DiffProperty(String key, Object oldValue, Object newValue, DiffType type) {
+        this(key, oldValue, newValue, type, null);
+    }
+
+    public DiffProperty(String key, Object oldValue, Object newValue, DiffType type, List<DiffProperty> children) {
+        this.key = key;
+        this.type = type;
+        this.oldValue = oldValue;
+        this.newValue = newValue;
+        this.children = children;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public DiffType getType() {
+        return type;
+    }
+
+    public Object getOldValue() {
+        return oldValue;
+    }
+
+    public Object getNewValue() {
+        return newValue;
+    }
+
+    public List<DiffProperty> getChildren() {
+        return children;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DiffProperty that = (DiffProperty) o;
+        return Objects.equals(key, that.key) &&
+                type == that.type &&
+                Objects.equals(oldValue, that.oldValue) &&
+                Objects.equals(newValue, that.newValue) &&
+                Objects.equals(children, that.children);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, type, oldValue, newValue, children);
+    }
+
+    @Override
+    public String toString() {
+        return "DiffProperty{" +
+                "key='" + key + '\'' +
+                ", type=" + type +
+                ", oldValue=" + oldValue +
+                ", newValue=" + newValue +
+                ", children=" + children +
+                '}';
+    }
+}
+Как они работают вместе:
+TreeDiffer: Этот класс отвечает за сравнение двух объектов типа Map<String, Object> и построение дерева различий в виде списка Node. Он проходит по ключам объединенного 
+множества ключей из двух объектов и для каждого ключа определяет тип различия (добавленное, удаленное, измененное, составное или неизмененное) и создает соответствующий 
+узел Node с помощью вспомогательного метода buildNode.
+
+Node: Этот класс представляет узел в дереве различий. Он содержит ключ (key), значение (value), тип узла (type) из перечисления NodeType и список дочерних узлов (children).
+ Узлы могут быть разных типов в зависимости от типа различия: добавленные, удаленные, измененные, составные или неизмененные.
+
+DiffProperty: Этот класс представляет конкретное свойство различия между двумя объектами. Он содержит ключ (key), тип различия (type), старое значение (oldValue), 
+новое значение (newValue) и список дочерних DiffProperty, если различие является составным. Он используется для представления отдельных свойств различий между двумя объектами.
+
+Вместе эти классы обеспечивают комплексный механизм сравнения и представления различий между объектами, позволяя детализированно отслеживать изменения и строить структурированные 
+деревья различий для дальнейшей обработки или визуализации.
+
+Класс Parser
+java
+Copy code
+package hexlet.code;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+
+import java.io.IOException;
+import java.util.Map;
+
+public class Parser {
+    public static Map<String, Object> parse(String content, String fileExtension) throws IOException {
+        ObjectMapper objectMapper = fileExtension.equals("yaml") || fileExtension.equals("yml")
+                ? new ObjectMapper(new YAMLFactory()) : new ObjectMapper();
+        return objectMapper.readValue(content, new TypeReference<Map<String, Object>>() {});
+    }
+}
+Функциональность:
+Метод parse:
+Принимает два параметра: content (строка с содержимым файла) и fileExtension (расширение файла).
+В зависимости от расширения файла (yaml или yml), создает ObjectMapper с YAMLFactory или стандартным ObjectMapper.
+Использует ObjectMapper для чтения содержимого файла (content) и преобразования его в Map<String, Object>.
+Возвращает Map<String, Object>, которая представляет структуру данных из файла.
+Зачем он нужен?
+Чтение различных форматов файлов: Класс Parser позволяет вашему приложению читать файлы в различных форматах данных, таких как JSON и YAML.
+
+ Это особенно полезно, когда ваши данные представлены в форматах, отличных от стандартного текстового файла.
+
+Преобразование в структуры данных: ObjectMapper из библиотеки Jackson обеспечивает преобразование текстового представления данных (например, из файла) 
+в Java-объекты, такие как Map<String, Object>, которые легко анализировать и обрабатывать в вашем приложении.
+
+Работа с YAML и JSON: Использование YAMLFactory позволяет обрабатывать YAML-файлы, которые часто используются для конфигураций, в то время как стандартный
+ ObjectMapper подходит для JSON-файлов.
+
+Таким образом, Parser является важным компонентом вашего приложения для работы с файлами, содержащими данные в форматах JSON и YAML, и предоставляет 
+удобный способ преобразования их содержимого во внутренние структуры данных Java для дальнейшего анализа и использования.
+
+
+
+Tри ключевых класса вашего проекта: TreeDiffer, Node и DiffProperty. Эти классы работают вместе для сравнения двух структур данных и создания диффа (различий) между ними.
+
+Класс TreeDiffer
+java
+Copy code
+package hexlet.code;
+
+import java.util.*;
+
+public class TreeDiffer {
+
+    public static List<DiffProperty> compareData(Map<String, Object> obj1, Map<String, Object> obj2) {
+        Set<String> keys = new TreeSet<>(obj1.keySet());
+        keys.addAll(obj2.keySet());
+
+        List<DiffProperty> result = keys.stream().map(key -> {
+            if (!obj1.containsKey(key)) {
+                return new DiffProperty(key, null, obj2.get(key), DiffType.ADDED);
+            }
+            if (!obj2.containsKey(key)) {
+                return new DiffProperty(key, obj1.get(key), null, DiffType.REMOVED);
+            }
+            if (obj1.get(key) instanceof Map && obj2.get(key) instanceof Map) {
+                List<DiffProperty> children = compareData((Map<String, Object>) obj1.get(key), (Map<String, Object>) obj2.get(key));
+                return new DiffProperty(key, null, null, DiffType.COMPOUND, children);
+            }
+            if (Objects.equals(obj1.get(key), obj2.get(key))) {
+                return new DiffProperty(key, obj1.get(key), obj2.get(key), DiffType.UNCHANGED);
+            }
+            return new DiffProperty(key, obj1.get(key), obj2.get(key), DiffType.CHANGED);
+        }).collect(Collectors.toList());
+
+        return result;
+    }
+}
+Функциональность TreeDiffer:
+Метод compareData:
+Принимает два параметра: obj1 и obj2, которые являются Map<String, Object> для сравнения.
+Создает Set<String> keys, содержащий объединение ключей из obj1 и obj2.
+Использует Stream для итерации по всем ключам и создания списка DiffProperty, представляющих различия между obj1 и obj2.
+Для каждого ключа проверяет наличие ключа в obj1 и obj2, сравнивает значения и определяет тип изменения (добавление, удаление, изменение, составной или без изменений).
+Класс Node
+java
+Copy code
+package hexlet.code;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+
+public class Node {
+    private final String key;
+    private final Object value;
+    private final NodeType type;
+    private final List<Node> children;
+
+    public Node(String key, Object value, NodeType type, List<Node> children) {
+        this.key = key;
+        this.value = value;
+        this.type = type;
+        this.children = children != null ? children : Collections.emptyList();
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public Object getValue() {
+        return value;
+    }
+
+    public NodeType getType() {
+        return type;
+    }
+
+    public List<Node> getChildren() {
+        return children;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Node node = (Node) o;
+        return Objects.equals(key, node.key) &&
+                Objects.equals(value, node.value) &&
+                type == node.type &&
+                Objects.equals(children, node.children);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, value, type, children);
+    }
+}
+Функциональность Node:
+Представляет узел в дереве диффа.
+Содержит поля для ключа (key), значения (value), типа узла (type) и дочерних узлов (children).
+Обеспечивает методы для получения значений полей, сравнения узлов на равенство и вычисления хэш-кода.
+Класс DiffProperty
+java
+Copy code
+package hexlet.code;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import java.util.List;
+import java.util.Objects;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({ "key", "type", "oldValue", "newValue", "children" })
+public class DiffProperty {
+    private final String key;
+    private final DiffType type;
+    private final Object oldValue;
+    private final Object newValue;
+    private final List<DiffProperty> children;
+
+    public DiffProperty(String key, Object oldValue, Object newValue, DiffType type) {
+        this(key, oldValue, newValue, type, null);
+    }
+
+    public DiffProperty(String key, Object oldValue, Object newValue, DiffType type, List<DiffProperty> children) {
+        this.key = key;
+        this.type = type;
+        this.oldValue = oldValue;
+        this.newValue = newValue;
+        this.children = children;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public DiffType getType() {
+        return type;
+    }
+
+    public Object getOldValue() {
+        return oldValue;
+    }
+
+    public Object getNewValue() {
+        return newValue;
+    }
+
+    public List<DiffProperty> getChildren() {
+        return children;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DiffProperty that = (DiffProperty) o;
+        return Objects.equals(key, that.key) &&
+                type == that.type &&
+                Objects.equals(oldValue, that.oldValue) &&
+                Objects.equals(newValue, that.newValue) &&
+                Objects.equals(children, that.children);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, type, oldValue, newValue, children);
+    }
+
+    @Override
+    public String toString() {
+        return "DiffProperty{" +
+                "key='" + key + '\'' +
+                ", type=" + type +
+                ", oldValue=" + oldValue +
+                ", newValue=" + newValue +
+                ", children=" + children +
+                '}';
+    }
+}
+Функциональность DiffProperty:
+Представляет свойство изменения (различия) между двумя объектами.
+Содержит поля для ключа (key), типа изменения (type), старого значения (oldValue), нового значения (newValue) и дочерних свойств (children), если таковые есть.
+Обеспечивает методы для получения значений полей, сравнения свойств на равенство и вычисления хэш-кода.
+Используется для представления результатов сравнения и создания структуры данных, которая может быть легко сериализована в формат JSON или другие форматы для 
+дальнейшей обработки или отображения.
+Взаимодействие классов:
+TreeDiffer используется для сравнения двух Map<String, Object> и создания списка DiffProperty, представляющего различия между ними.
+Node представляет узлы дерева различий и может использоваться в качестве промежуточных узлов при построении дерева диффа.
+DiffProperty представляет конечные свойства изменений и используется для представления результатов сравнения в удобном для чтения формате.
+Эти классы вместе образуют основу для реализации механизма сравнения данных и создания диффа между ними в вашем приложении.
+
+Класс Differ является центральной частью вашего приложения для сравнения файлов различных форматов (YAML, JSON и т.д.) и генерации результата в различных 
+форматах (стильный вывод, JSON, простой текст). Давайте подробно рассмотрим его функции и взаимодействие с другими компонентами вашего проекта.
+
+Класс Differ
+java
+Copy code
+package hexlet.code;
+
+import hexlet.code.formatters.Formatter;
+import hexlet.code.formatters.JsonFormatter;
+import hexlet.code.formatters.PlainFormatter;
+import hexlet.code.formatters.StylishFormatter;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+
+public class Differ {
+    private static final Formatter STYLISH_FORMATTER = new StylishFormatter();
+    private static final Formatter JSON_FORMATTER = new JsonFormatter();
+    private static final Formatter PLAIN_FORMATTER = new PlainFormatter();
+
+    public static String generate(String filepath1, String filepath2, String format) throws Exception {
+        String file1Content = readFileToString(filepath1);
+        String file2Content = readFileToString(filepath2);
+
+        String fileExtension1 = getFileExtension(filepath1);
+        String fileExtension2 = getFileExtension(filepath2);
+
+        Map<String, Object> map1 = Parser.parse(file1Content, fileExtension1);
+        Map<String, Object> map2 = Parser.parse(file2Content, fileExtension2);
+
+        List<DiffProperty> diff = TreeDiffer.compareData(map1, map2);
+
+        return format(format, diff);
+    }
+
+    public static String generate(String filepath1, String filepath2) throws Exception {
+        return generate(filepath1, filepath2, "stylish");
+    }
+
+    public static String readFileToString(String filepath) throws IOException {
+        Path path = Path.of(filepath).toAbsolutePath().normalize();
+        return Files.readString(path);
+    }
+
+    private static String getFileExtension(String filepath) {
+        String fullPath = Path.of(filepath).toAbsolutePath().normalize().toString();
+        int index = fullPath.lastIndexOf('.');
+        return index == -1 ? null : fullPath.substring(index + 1).toLowerCase();
+    }
+
+    private static String format(String format, List<DiffProperty> diff) throws Exception {
+        switch (format) {
+            case "stylish":
+                return STYLISH_FORMATTER.format(diff);
+            case "json":
+                return JSON_FORMATTER.format(diff);
+            case "plain":
+                return PLAIN_FORMATTER.format(diff);
+            default:
+                throw new IllegalArgumentException("Unsupported format: " + format);
+        }
+    }
+}
+Описание работы класса Differ:
+Форматтеры (STYLISH_FORMATTER, JSON_FORMATTER, PLAIN_FORMATTER):
+
+Differ содержит статические поля для форматтеров различных типов вывода (Stylish, Json, Plain), которые реализуют интерфейс Formatter. 
+Каждый форматтер отвечает за преобразование списка DiffProperty в соответствующий формат.
+Метод generate(filepath1, filepath2, format):
+
+Этот метод принимает два пути к файлам для сравнения (filepath1 и filepath2) и строку format, определяющую желаемый формат вывода ("stylish", "json", "plain").
+Считывает содержимое каждого файла в строковую переменную (file1Content, file2Content) с помощью метода readFileToString.
+Определяет тип файлов на основе их расширения с помощью метода getFileExtension.
+Парсит содержимое файлов в Map<String, Object> с использованием метода Parser.parse.
+Сравнивает эти две структуры данных с помощью метода TreeDiffer.compareData, что возвращает список DiffProperty с различиями между ними.
+Преобразует список DiffProperty в строку в заданном формате с помощью метода format.
+Метод generate(filepath1, filepath2):
+
+Это перегруженный метод, который вызывает основной метод generate с форматом по умолчанию "stylish".
+Методы утилиты (readFileToString, getFileExtension):
+
+readFileToString читает содержимое файла в строку.
+getFileExtension извлекает расширение файла из его пути.
+Метод format(String format, List<DiffProperty> diff):
+
+Выбирает подходящий форматтер на основе строки format и вызывает соответствующий метод format для преобразования списка DiffProperty в строку заданного формата.
+Взаимодействие с другими классами:
+Parser: Используется для парсинга содержимого файлов в Map<String, Object>.
+TreeDiffer: Используется для сравнения двух Map<String, Object> и создания списка DiffProperty.
+StylishFormatter, JsonFormatter, PlainFormatter: Используются для преобразования списка DiffProperty в соответствующий формат вывода.
+Общий поток работы:
+Чтение файлов: Differ.readFileToString считывает содержимое файлов в строки.
+Парсинг данных: Parser.parse преобразует строки с данными из файлов в Map<String, Object>.
+Сравнение данных: TreeDiffer.compareData сравнивает две Map<String, Object> и создает список DiffProperty с различиями.
+Форматирование вывода: Differ.format выбирает и применяет соответствующий форматтер (StylishFormatter, JsonFormatter, PlainFormatter) для создания 
+строкового представления различий в выбранном формате.
+Возврат результата: Возвращается строковое представление различий между файлами в указанном формате.
+Эти компоненты вместе обеспечивают функциональность сравнения файлов и генерации различий в различных форматах вывода в вашем приложении.
+
+Для того чтобы актуализировать классы Node, DiffProperty, и TreeDiffer для работы как с плоскими (одноуровневыми) файлами, так и с вложенными (неплоскими) структурами данных,
+ нужно внести некоторые изменения. Давайте пошагово обновим каждый из этих классов, чтобы они могли корректно обрабатывать оба типа файлов.
+
+1. Класс Node
+Node представляет узел дерева для отображения различий между файлами.
+
+java
+Copy code
+package hexlet.code;
+
+import java.util.List;
+import java.util.Objects;
+
+public class Node {
+    private final String key;
+    private final NodeType type;
+    private final Object oldValue;
+    private final Object newValue;
+    private final List<Node> children;
+
+    public Node(String key, Object oldValue, Object newValue, NodeType type) {
+        this(key, oldValue, newValue, type, null);
+    }
+
+    public Node(String key, Object oldValue, Object newValue, NodeType type, List<Node> children) {
+        this.key = key;
+        this.type = type;
+        this.oldValue = oldValue;
+        this.newValue = newValue;
+        this.children = children;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public NodeType getType() {
+        return type;
+    }
+
+    public Object getOldValue() {
+        return oldValue;
+    }
+
+    public Object getNewValue() {
+        return newValue;
+    }
+
+    public List<Node> getChildren() {
+        return children;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Node node = (Node) o;
+        return Objects.equals(key, node.key) &&
+                type == node.type &&
+                Objects.equals(oldValue, node.oldValue) &&
+                Objects.equals(newValue, node.newValue) &&
+                Objects.equals(children, node.children);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, type, oldValue, newValue, children);
+    }
+
+    @Override
+    public String toString() {
+        return "Node{" +
+                "key='" + key + '\'' +
+                ", type=" + type +
+                ", oldValue=" + oldValue +
+                ", newValue=" + newValue +
+                ", children=" + children +
+                '}';
+    }
+}
+2. Класс DiffProperty
+DiffProperty представляет собой отдельное различие между двумя объектами.
+
+java
+Copy code
+package hexlet.code;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import java.util.List;
+import java.util.Objects;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({ "key", "type", "oldValue", "newValue", "children" })
+public class DiffProperty {
+    private final String key;
+    private final DiffType type;
+    private final Object oldValue;
+    private final Object newValue;
+    private final List<DiffProperty> children;
+
+    public DiffProperty(String key, Object oldValue, Object newValue, DiffType type) {
+        this(key, oldValue, newValue, type, null);
+    }
+
+    public DiffProperty(String key, Object oldValue, Object newValue, DiffType type, List<DiffProperty> children) {
+        this.key = key;
+        this.type = type;
+        this.oldValue = oldValue;
+        this.newValue = newValue;
+        this.children = children;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public DiffType getType() {
+        return type;
+    }
+
+    public Object getOldValue() {
+        return oldValue;
+    }
+
+    public Object getNewValue() {
+        return newValue;
+    }
+
+    public List<DiffProperty> getChildren() {
+        return children;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DiffProperty that = (DiffProperty) o;
+        return Objects.equals(key, that.key) &&
+                type == that.type &&
+                Objects.equals(oldValue, that.oldValue) &&
+                Objects.equals(newValue, that.newValue) &&
+                Objects.equals(children, that.children);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, type, oldValue, newValue, children);
+    }
+
+    @Override
+    public String toString() {
+        return "DiffProperty{" +
+                "key='" + key + '\'' +
+                ", type=" + type +
+                ", oldValue=" + oldValue +
+                ", newValue=" + newValue +
+                ", children=" + children +
+                '}';
+    }
+}
+3. Класс TreeDiffer
+TreeDiffer выполняет сравнение двух структур данных (Map<String, Object>) и возвращает список различий.
+
+java
+Copy code
+package hexlet.code;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
+
+public class TreeDiffer {
+
+    public static List<DiffProperty> compareData(Map<String, Object> map1, Map<String, Object> map2) {
+        List<DiffProperty> diff = new ArrayList<>();
+        Set<String> allKeys = new TreeSet<>(map1.keySet());
+        allKeys.addAll(map2.keySet());
+
+        for (String key : allKeys) {
+            Object value1 = map1.get(key);
+            Object value2 = map2.get(key);
+
+            if (!map1.containsKey(key)) {
+                diff.add(new DiffProperty(key, null, value2, DiffType.ADDED));
+            } else if (!map2.containsKey(key)) {
+                diff.add(new DiffProperty(key, value1, null, DiffType.REMOVED));
+            } else if (Objects.equals(value1, value2)) {
+                diff.add(new DiffProperty(key, value1, value2, DiffType.UNCHANGED));
+            } else if (value1 instanceof Map && value2 instanceof Map) {
+                List<DiffProperty> children = compareData((Map<String, Object>) value1, (Map<String, Object>) value2);
+                diff.add(new DiffProperty(key, null, null, DiffType.COMPOUND, children));
+            } else {
+                diff.add(new DiffProperty(key, value1, value2, DiffType.CHANGED));
+            }
+        }
+
+        return diff;
+    }
+}
+Изменения для работы с плоскими и неплоскими структурами данных
+Чтобы эти классы корректно работали как с плоскими файлами, так и с вложенными структурами данных (неплоскими файлами), вам необходимо учитывать следующее:
+
+Обработка вложенных структур: В классе TreeDiffer, если значение value1 и value2 являются Map<String, Object>, то вызывается рекурсивный вызов compareData для сравнения вложенных 
+структур.
+Приведение типов: При обработке значений в DiffProperty и Node необходимо учитывать возможные типы данных (например, List, Map, String, Integer и т.д.), чтобы корректно сравнивать
+ их и сохранять различия.
+Примерно так вы можете адаптировать эти классы для работы с различными типами файлов и структур данных в вашем проекте.
+
+
+package hexlet.code;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.Getter;
+
+import java.util.List;
+import java.util.Objects;
+
+@Getter
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({ "key", "type", "oldValue", "newValue", "children" })
+public class DiffProperty {
+    private final String key;
+    private final NodeType type;
+    private final Object oldValue;
+    private final Object newValue;
+    private final List<DiffProperty> children;
+
+    public DiffProperty(String key, Object oldValue, Object newValue, NodeType type) {
+        this(key, oldValue, newValue, type, null);
+    }
+
+    public DiffProperty(String key, Object oldValue, Object newValue, NodeType type, List<DiffProperty> children) {
+        this.key = key;
+        this.type = type;
+        this.oldValue = oldValue;
+        this.newValue = newValue;
+        this.children = children;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DiffProperty that = (DiffProperty) o;
+        return Objects.equals(key, that.key) &&
+                type == that.type &&
+                Objects.equals(oldValue, that.oldValue) &&
+                Objects.equals(newValue, that.newValue) &&
+                Objects.equals(children, that.children);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, type, oldValue, newValue, children);
+    }
+
+    @Override
+    public String toString() {
+        return "DiffProperty{" +
+                "key='" + key + '\'' +
+                ", type=" + type +
+                ", oldValue=" + oldValue +
+                ", newValue=" + newValue +
+                ", children=" + children +
+                '}';
+    }
+}
+
+package hexlet.code;
+
+import hexlet.code.formatters.Formatter;
+import hexlet.code.formatters.JsonFormatter;
+import hexlet.code.formatters.PlainFormatter;
+import hexlet.code.formatters.StylishFormatter;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+
+public class Differ {
+    private static final Formatter STYLISH_FORMATTER = new StylishFormatter();
+    private static final Formatter JSON_FORMATTER = new JsonFormatter();
+    private static final Formatter PLAIN_FORMATTER = new PlainFormatter();
+
+    public static String generate(String filepath1, String filepath2, String format) throws Exception {
+        String file1Content = readFileToString(filepath1);
+        String file2Content = readFileToString(filepath2);
+
+        String fileExtension1 = getFileExtension(filepath1);
+        String fileExtension2 = getFileExtension(filepath2);
+
+        Map<String, Object> map1 = Parser.parse(file1Content, fileExtension1);
+        Map<String, Object> map2 = Parser.parse(file2Content, fileExtension2);
+
+        List<DiffProperty> diff = TreeDiffer.compareData(map1, map2);
+
+        return format(format, diff);
+    }
+
+    public static String generate(String filepath1, String filepath2) throws Exception {
+        return generate(filepath1, filepath2, "stylish");
+    }
+
+    public static String readFileToString(String filepath) throws IOException {
+        Path path = Path.of(filepath).toAbsolutePath().normalize();
+        return Files.readString(path);
+    }
+
+    private static String getFileExtension(String filepath) {
+        String fullPath = Path.of(filepath).toAbsolutePath().normalize().toString();
+        int index = fullPath.lastIndexOf('.');
+        return index == -1 ? null : fullPath.substring(index + 1).toLowerCase();
+    }
+
+    private static String format(String format, List<DiffProperty> diff) throws Exception {
+        switch (format) {
+            case "stylish":
+                return STYLISH_FORMATTER.format(diff);
+            case "json":
+                return JSON_FORMATTER.format(diff);
+            case "plain":
+                return PLAIN_FORMATTER.format(diff);
+            default:
+                throw new IllegalArgumentException("Unsupported format: " + format);
+        }
+    }
+}
+
+
+
+package hexlet.code;
+
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class DifferTest {
+
+    @ParameterizedTest
+    @CsvSource({
+        /*"src/test/resources/file1.yml, src/test/resources/file2.yml, src/test/resources/expectedStylish.txt, "
+                +  "stylish",
+        "src/test/resources/file1.yml, src/test/resources/file2.yml, src/test/resources/expectedPlain.txt,"
+                +  " plain",
+        "src/test/resources/file1.yml, src/test/resources/file2.yml, src/test/resources/expectedJson.txt, json",
+        "src/test/resources/file3.json, src/test/resources/file4.json, src/test/resources/expectedStylishNotFlat.txt, "
+                +  "stylish",
+        "src/test/resources/file3.json, src/test/resources/file4.json, src/test/resources/expectedPlainNotFlat.txt, "
+                +  "plain",*/
+        "src/test/resources/file3.json, src/test/resources/file4.json, src/test/resources/expectedJsonNotFlat.txt,"
+                + " json"
+    })
+    void testGenerate(String filepath1, String filepath2, String expectedResultFilepath, String format)
+            throws Exception {
+        String expectedResult = normalizeString(Files.readString(Paths.get(expectedResultFilepath)));
+        String actualResult = normalizeString(Differ.generate(filepath1, filepath2, format));
+
+        assertEquals(expectedResult, actualResult);
+    }
+
+    private String normalizeString(String input) {
+        return input.trim().replaceAll("\\r\\n", "\n").replaceAll("\\r", "\n");
+    }
+}
+
+

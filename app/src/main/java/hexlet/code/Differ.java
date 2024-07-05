@@ -23,12 +23,17 @@ public class Differ {
         String fileExtension1 = getFileExtension(filepath1);
         String fileExtension2 = getFileExtension(filepath2);
 
+        if (fileExtension1 == null || fileExtension2 == null) {
+            throw new IllegalArgumentException("File extension cannot be determined.");
+        }
+
         Map<String, Object> map1 = Parser.parse(file1Content, fileExtension1);
         Map<String, Object> map2 = Parser.parse(file2Content, fileExtension2);
 
-        List<DiffProperty> diff = TreeDiffer.compareData(map1, map2);
+        List<Node> diff = TreeDiffer.compareData(map1, map2);
+        List<DiffProperty> diffProperties = Node.toDiffProperties(diff);
 
-        return format(format, diff);
+        return format(format, diffProperties);
     }
 
     public static String generate(String filepath1, String filepath2) throws Exception {
@@ -47,15 +52,11 @@ public class Differ {
     }
 
     private static String format(String format, List<DiffProperty> diff) throws Exception {
-        switch (format) {
-            case "stylish":
-                return STYLISH_FORMATTER.format(diff);
-            case "json":
-                return JSON_FORMATTER.format(diff);
-            case "plain":
-                return PLAIN_FORMATTER.format(diff);
-            default:
-                throw new IllegalArgumentException("Unsupported format: " + format);
-        }
+        return switch (format) {
+            case "stylish" -> STYLISH_FORMATTER.format(diff);
+            case "json" -> JSON_FORMATTER.format(diff);
+            case "plain" -> PLAIN_FORMATTER.format(diff);
+            default -> throw new IllegalArgumentException("Unsupported format: " + format);
+        };
     }
 }
