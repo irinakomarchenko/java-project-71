@@ -36,7 +36,7 @@ public class PlainFormatter implements Formatter {
         } else if (value instanceof String) {
             return "'" + value + "'";
         } else if (value instanceof List || value instanceof Map) {
-            return "[complex value]";
+            return value.toString();
         }
         return value.toString();
     }
