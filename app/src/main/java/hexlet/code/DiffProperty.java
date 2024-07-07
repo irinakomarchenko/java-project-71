@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 
 import java.util.List;
-import java.util.Objects;
 
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -23,37 +22,5 @@ public class DiffProperty {
         this.oldValue = oldValue;
         this.newValue = newValue;
         this.children = children;
-    }
-
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        DiffProperty that = (DiffProperty) o;
-        return Objects.equals(key, that.key)
-                && type == that.type
-                && Objects.equals(oldValue, that.oldValue)
-                && Objects.equals(newValue, that.newValue)
-                && Objects.equals(children, that.children);
-    }
-
-    @Override
-    public final int hashCode() {
-        return Objects.hash(key, type, oldValue, newValue, children);
-    }
-
-    @Override
-    public final String toString() {
-        return "DiffProperty{"
-                + "key='" + key + '\''
-                + ", type=" + type
-                + ", oldValue=" + oldValue
-                + ", newValue=" + newValue
-                + ", children=" + children
-                + '}';
     }
 }

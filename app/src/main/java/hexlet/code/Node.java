@@ -3,7 +3,6 @@ package hexlet.code;
 import lombok.Getter;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Getter
@@ -36,37 +35,5 @@ public class Node {
                         node.getChildren() != null ? toDiffProperties(node.getChildren()) : null
                 ))
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Node node = (Node) o;
-        return Objects.equals(key, node.key)
-                && type == node.type
-                && Objects.equals(oldValue, node.oldValue)
-                && Objects.equals(newValue, node.newValue)
-                && Objects.equals(children, node.children);
-    }
-
-    @Override
-    public final int hashCode() {
-        return Objects.hash(key, type, oldValue, newValue, children);
-    }
-
-    @Override
-    public final String toString() {
-        return "Node{"
-                +  "key='" + key + '\''
-                +  ", type=" + type
-                +  ", oldValue=" + oldValue
-                +  ", newValue=" + newValue
-                +  ", children=" + children
-                +  '}';
     }
 }
