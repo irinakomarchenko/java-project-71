@@ -40,7 +40,7 @@ class DifferTest {
 
     @ParameterizedTest
     @CsvSource({
-            "src/test/resources/file1.yml, src/test/resources/file2.yml, src/test/resources/expectedStylish.txt",
+        "src/test/resources/file1.yml, src/test/resources/file2.yml, src/test/resources/expectedStylish.txt",
     })
     void testGenerateDefaultFormat(String filepath1, String filepath2, String expectedResultFilepath) throws
             Exception {
