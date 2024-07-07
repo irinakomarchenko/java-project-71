@@ -15,11 +15,7 @@ group = "hexlet.code"
 version = "1.0-SNAPSHOT"
 
 application {
-    mainClass.set("hexlet.code.App")
-}
-
-tasks.named<JavaExec>("run") {
-    args = listOf("")
+    mainClass = "hexlet.code.App"
 }
 
 repositories {
@@ -43,15 +39,11 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-    testLogging {
-        exceptionFormat = TestExceptionFormat.FULL
-        events = mutableSetOf(TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED)
-        showStandardStreams = true
-    }
 }
 
 jacoco {
     toolVersion = "0.8.11"
+    reportsDirectory = layout.buildDirectory.dir("reports/jacoco")
 }
 
 tasks.jacocoTestReport {

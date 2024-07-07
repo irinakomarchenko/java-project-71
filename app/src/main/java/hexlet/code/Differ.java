@@ -11,10 +11,14 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-public class Differ {
+public final class Differ {
     private static final Formatter STYLISH_FORMATTER = new StylishFormatter();
     private static final Formatter JSON_FORMATTER = new JsonFormatter();
     private static final Formatter PLAIN_FORMATTER = new PlainFormatter();
+
+    private Differ() {
+        throw new AssertionError();
+    }
 
     public static String generate(String filepath1, String filepath2, String format) throws Exception {
         String file1Content = readFileToString(filepath1);

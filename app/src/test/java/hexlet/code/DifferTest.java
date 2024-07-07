@@ -6,7 +6,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -15,13 +14,15 @@ class DifferTest {
     @ParameterizedTest
     @CsvSource({
         "src/test/resources/file1.yml, src/test/resources/file2.yml, src/test/resources/expectedStylish.txt, "
-                    +  "stylish",
+            +  "stylish",
+        "src/test/resources/file1.yaml, src/test/resources/file2.yml, src/test/resources/expectedStylish.txt, "
+            +  "stylish",
         "src/test/resources/file1.yml, src/test/resources/file2.yml, src/test/resources/expectedPlain.txt, plain",
         "src/test/resources/file1.yml, src/test/resources/file2.yml, src/test/resources/expectedJson.txt, json",
         "src/test/resources/file3.json, src/test/resources/file4.json, src/test/resources/expectedStylishNotFlat.txt, "
-                +  "stylish",
+            +  "stylish",
         "src/test/resources/file3.json, src/test/resources/file4.json, src/test/resources/expectedPlainNotFlat.txt,"
-             + " plain",
+            + " plain",
         "src/test/resources/file3.json, src/test/resources/file4.json, src/test/resources/expectedJsonNotFlat.txt, json"
     })
     void testGenerate(String filepath1, String filepath2, String expectedResultFilepath, String format) throws
@@ -39,8 +40,10 @@ class DifferTest {
 
     @ParameterizedTest
     @CsvSource({
-        "src/test/resources/file_wo_ext_1, src/test/resources/file_wo_ext_2, plain, "
-                + "File extension cannot be determined.",
+        "src/test/resources/file1.json, src/test/resources/file_wo_ext_2, plain, "
+            + "File extension cannot be determined.",
+        "src/test/resources/file_wo_ext_1, src/test/resources/file2.json, plain, "
+            + "File extension cannot be determined.",
         "src/test/resources/file1.json, src/test/resources/file2.json, wrong, Unsupported format: wrong",
     })
     void testGenerateException(String filepath1, String filepath2, String format, String exceptionMsg) throws
