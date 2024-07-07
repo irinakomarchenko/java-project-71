@@ -40,6 +40,10 @@ public final class Differ {
         return format(format, diffProperties);
     }
 
+    public static String generate(String filepath1, String filepath2) throws Exception {
+        return generate(filepath1, filepath2, "stylish");
+    }
+
     public static String readFileToString(String filepath) throws IOException {
         Path path = Path.of(filepath).toAbsolutePath().normalize();
         return Files.readString(path);
