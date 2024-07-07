@@ -1,3 +1,5 @@
+.gitattributes
+
 .gradle
 **/build/
 !src/**/build/
