@@ -1,6 +1,9 @@
 install:
 	make -C app install
 
+run-app:
+	make -C app run-app
+
 lint:
 	make -C app lint
 
