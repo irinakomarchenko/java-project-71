@@ -1,8 +1,11 @@
-run-dist:
+install:
 	./build/install/app/bin/app
 
 lint:
 	./gradlew checkstyleMain
+
+test:
+	./gradlew test
 
 build:
 	./gradlew build
@@ -10,5 +13,4 @@ build:
 report:
 	./gradlew jacocoTestReport
 
-	
 .PHONY: build
