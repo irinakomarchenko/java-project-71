@@ -53,11 +53,11 @@ public class DiffProperty {
     @Override
     public String toString() {
         return "DiffProperty{"
-                +  "key='" + key + '\''
-                +  ", type=" + type
-                +  ", oldValue=" + oldValue
-                +  ", newValue=" + newValue
-                +  ", children=" + children
-                +  '}';
+                + "key='" + key + '\''
+                + ", type=" + type
+                + ", oldValue=" + oldValue
+                + ", newValue=" + newValue
+                + ", children=" + children
+                + '}';
     }
 }
