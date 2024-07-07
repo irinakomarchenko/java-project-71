@@ -39,8 +39,9 @@ class DifferTest {
 
     @ParameterizedTest
     @CsvSource({
-            "src/test/resources/file_wo_ext_1, src/test/resources/file_wo_ext_2, plain, File extension cannot be determined.",
-            "src/test/resources/file1.json, src/test/resources/file2.json, wrong, Unsupported format: wrong",
+        "src/test/resources/file_wo_ext_1, src/test/resources/file_wo_ext_2, plain, "
+                + "File extension cannot be determined.",
+        "src/test/resources/file1.json, src/test/resources/file2.json, wrong, Unsupported format: wrong",
     })
     void testGenerateException(String filepath1, String filepath2, String format, String exceptionMsg) throws
             Exception {
