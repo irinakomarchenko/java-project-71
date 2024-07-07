@@ -2,7 +2,7 @@ install:
 	./gradlew installDist
 
 run-app:
-	./build/install/app/bin/app
+	./build/install/app/bin/app -h
 
 lint:
 	./gradlew checkstyleMain
