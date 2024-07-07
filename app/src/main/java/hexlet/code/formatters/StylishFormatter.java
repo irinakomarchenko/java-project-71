@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 public class StylishFormatter implements Formatter {
 
     @Override
-    public String format(List<DiffProperty> diff) {
+    public final String format(List<DiffProperty> diff) {
         return format(diff, 1);
     }
 

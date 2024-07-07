@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 public class PlainFormatter implements Formatter {
 
     @Override
-    public String format(List<DiffProperty> diff) {
+    public final String format(List<DiffProperty> diff) {
         return diff.stream()
                 .sorted(Comparator.comparing(DiffProperty::getKey))
                 .map(this::formatProperty)
