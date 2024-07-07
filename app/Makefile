@@ -1,4 +1,7 @@
 install:
+	./gradlew installDist
+
+run-app:
 	./build/install/app/bin/app
 
 lint:
