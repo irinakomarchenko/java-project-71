@@ -17,10 +17,6 @@ public class DiffProperty {
     private final Object newValue;
     private final List<DiffProperty> children;
 
-    public DiffProperty(String key, Object oldValue, Object newValue, NodeType type) {
-        this(key, oldValue, newValue, type, null);
-    }
-
     public DiffProperty(String key, Object oldValue, Object newValue, NodeType type, List<DiffProperty> children) {
         this.key = key;
         this.type = type;

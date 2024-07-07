@@ -36,7 +36,4 @@ class DifferTest {
         assertEquals(expectedResult, actualResult);
     }
 
-    private String normalizeString(String input) {
-        return input.trim().replaceAll("\\r\\n", "\n").replaceAll("\\r", "\n");
-    }
 }
