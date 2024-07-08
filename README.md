@@ -22,6 +22,23 @@ Command to run-dist:
 
 
 2. Argument processing
-   The App class handles command line arguments using the Picocli library. It takes two required arguments - paths to files to compare, and
-   optional argument - output format.
-3. 
+   The App class handles command line arguments using the Picocli library. It takes two required arguments - paths to 
+   files to compare, and optional argument - output format.
+3. Reading and parsing files
+   The Differ.generate method reads the contents of files and determines their extensions, then parses them into 
+   a Map<String, Object> data structure.
+4. Description of the TreeDiffer.compareData and Node methods
+   The TreeDiffer.compareData method compares two parsed files, creating a list of DiffProperty objects, each of which
+   describes one difference (a key added, removed, changed, or unchanged).
+   The Node method is a helper class used to store data and information about each key. It represents a node in the diff 
+   tree.
+5. Formatting the result
+   The comparison result is formatted depending on the format selected by the user. Stylish, json and plain formats are 
+   supported. The formatter converts list DiffProperty into a string representation.
+6. Output of the result
+   The formatted result is displayed on the screen.
+
+### Demo
+
+[![asciicast](https://asciinema.org/a/EotE0chIPYK8Zg8tRm1nolGjt.svg)](https://asciinema.org/a/EotE0chIPYK8Zg8tRm1nolGjt)
+
