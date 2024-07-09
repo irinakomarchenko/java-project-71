@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class PlainFormatter implements Formatter {
+public class PlainFormatter extends Formatter {
 
-    @Override
+
     public final String format(List<DiffProperty> diff) {
         return diff.stream()
                 .sorted(Comparator.comparing(DiffProperty::getKey))

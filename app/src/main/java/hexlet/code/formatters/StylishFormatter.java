@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class StylishFormatter implements Formatter {
+public class StylishFormatter extends Formatter {
 
-    @Override
+
     public final String format(List<DiffProperty> diff) {
         return format(diff, 1);
     }

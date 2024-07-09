@@ -1,9 +1,7 @@
 package hexlet.code;
 
+
 import hexlet.code.formatters.Formatter;
-import hexlet.code.formatters.JsonFormatter;
-import hexlet.code.formatters.PlainFormatter;
-import hexlet.code.formatters.StylishFormatter;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,9 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 public final class Differ {
-    private static final Formatter STYLISH_FORMATTER = new StylishFormatter();
-    private static final Formatter JSON_FORMATTER = new JsonFormatter();
-    private static final Formatter PLAIN_FORMATTER = new PlainFormatter();
 
     private Differ() {
         throw new AssertionError();
@@ -37,7 +32,7 @@ public final class Differ {
         List<Node> diff = TreeDiffer.compareData(map1, map2);
         List<DiffProperty> diffProperties = Node.toDiffProperties(diff);
 
-        return format(format, diffProperties);
+        return Formatter.format(format, diffProperties);
     }
 
     public static String generate(String filepath1, String filepath2) throws Exception {
@@ -53,14 +48,5 @@ public final class Differ {
         String fullPath = Path.of(filepath).toAbsolutePath().normalize().toString();
         int index = fullPath.lastIndexOf('.');
         return index == -1 ? null : fullPath.substring(index + 1).toLowerCase();
-    }
-
-    private static String format(String format, List<DiffProperty> diff) throws Exception {
-        return switch (format) {
-            case "stylish" -> STYLISH_FORMATTER.format(diff);
-            case "json" -> JSON_FORMATTER.format(diff);
-            case "plain" -> PLAIN_FORMATTER.format(diff);
-            default -> throw new IllegalArgumentException("Unsupported format: " + format);
-        };
     }
 }

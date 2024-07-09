@@ -5,11 +5,12 @@ import hexlet.code.DiffProperty;
 
 import java.util.List;
 
-public class JsonFormatter implements Formatter {
+public class JsonFormatter {
 
-    @Override
+
     public final String format(List<DiffProperty> diff) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(diff);
     }
 }
+

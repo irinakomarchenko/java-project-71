@@ -28,12 +28,13 @@ public class TreeDiffer {
                 @SuppressWarnings("unchecked")
                 List<Node> children = compareData((Map<String, Object>) value1, (Map<String, Object>) value2);
                 diff.add(new Node(key, null, null, NodeType.COMPOUND, children));
-            } else {
+            } else if (!Objects.equals(value1, value2)) {
                 diff.add(new Node(key, value1, value2, NodeType.CHANGED));
+            } else {
+                throw new RuntimeException("Unknown status: " + key);
             }
         }
 
         return diff;
     }
 }
-
