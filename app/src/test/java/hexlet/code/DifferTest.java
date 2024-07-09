@@ -11,63 +11,77 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DifferTest {
 
-    @ParameterizedTest
-    @CsvSource({
-        "src/test/resources/file1.yml, src/test/resources/file2.yml, src/test/resources/expectedStylish.txt, "
-            +  "stylish",
-        "src/test/resources/file1.yaml, src/test/resources/file2.yml, src/test/resources/expectedStylish.txt, "
-            +  "stylish",
-        "src/test/resources/file1.yml, src/test/resources/file2.yml, src/test/resources/expectedPlain.txt, plain",
-        "src/test/resources/file1.yml, src/test/resources/file2.yml, src/test/resources/expectedJson.txt, json",
-        "src/test/resources/file3.json, src/test/resources/file4.json, src/test/resources/expectedStylishNotFlat.txt, "
-            +  "stylish",
-        "src/test/resources/file3.json, src/test/resources/file4.json, src/test/resources/expectedPlainNotFlat.txt,"
-            + " plain",
-        "src/test/resources/file3.json, src/test/resources/file4.json, src/test/resources/expectedJsonNotFlat.txt, json"
-    })
-    void testGenerate(String filepath1, String filepath2, String expectedResultFilepath, String format) throws
-            Exception {
-        String expectedResult = Files.readString(Paths.get(expectedResultFilepath));
+    private String readFromFile(String filepath) throws Exception {
+        return Files.readString(Paths.get(filepath));
+    }
+
+    private String getFixturePath(String filename) {
+        return "src/test/resources/" + filename;
+    }
+
+    private void assertGeneratedResult(String filepath1, String filepath2, String expectedResultFilepath, String format)
+            throws Exception {
+        String expectedResult = readFromFile(expectedResultFilepath);
         String actualResult = Differ.generate(filepath1, filepath2, format);
 
-        System.out.println("ACTUAL:");
-        System.out.println(actualResult);
-        System.out.println("EXPECTED:");
-        System.out.println(expectedResult);
-        System.out.println("END");
         assertEquals(expectedResult, actualResult);
     }
 
     @ParameterizedTest
     @CsvSource({
-        "src/test/resources/file1.yml, src/test/resources/file2.yml, src/test/resources/expectedStylish.txt",
+        "file1.yml, file2.yml, expectedStylish.txt, stylish",
+        "file1.yaml, file2.yml, expectedStylish.txt, stylish",
+        "file1.yml, file2.yml, expectedPlain.txt, plain",
+        "file1.yml, file2.yml, expectedJson.txt, json",
+        "file3.json, file4.json, expectedStylishNotFlat.txt, stylish",
+        "file3.json, file4.json, expectedPlainNotFlat.txt, plain",
+        "file3.json, file4.json, expectedJsonNotFlat.txt, json"
     })
-    void testGenerateDefaultFormat(String filepath1, String filepath2, String expectedResultFilepath) throws
-            Exception {
-        String expectedResult = Files.readString(Paths.get(expectedResultFilepath));
-        String actualResult = Differ.generate(filepath1, filepath2);
+    void testGenerate(String file1, String file2, String expectedResultFile, String format) throws Exception {
+        String filepath1 = getFixturePath(file1);
+        String filepath2 = getFixturePath(file2);
+        String expectedResultFilepath = getFixturePath(expectedResultFile);
 
-        System.out.println("ACTUAL:");
-        System.out.println(actualResult);
-        System.out.println("EXPECTED:");
-        System.out.println(expectedResult);
-        System.out.println("END");
-        assertEquals(expectedResult, actualResult);
+        assertGeneratedResult(filepath1, filepath2, expectedResultFilepath, format);
     }
 
     @ParameterizedTest
     @CsvSource({
-        "src/test/resources/file1.json, src/test/resources/file_wo_ext_2, plain, "
-            + "File extension cannot be determined.",
-        "src/test/resources/file_wo_ext_1, src/test/resources/file2.json, plain, "
-            + "File extension cannot be determined.",
-        "src/test/resources/file1.json, src/test/resources/file2.json, wrong, Unsupported format: wrong",
+        "file1.yml, file2.yml, expectedStylish.txt",
     })
-    void testGenerateException(String filepath1, String filepath2, String format, String exceptionMsg) {
+    void testGenerateDefaultFormat(String file1, String file2, String expectedResultFile) throws Exception {
+        String filepath1 = getFixturePath(file1);
+        String filepath2 = getFixturePath(file2);
+        String expectedResultFilepath = getFixturePath(expectedResultFile);
+
+        assertGeneratedResult(filepath1, filepath2, expectedResultFilepath, "stylish");
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "file1.json, file_wo_ext_2, plain, File extension cannot be determined.",
+        "file_wo_ext_1, file2.json, plain, File extension cannot be determined.",
+        "file1.json, file2.json, wrong, Unsupported format: wrong",
+    })
+    void testGenerateException(String file1, String file2, String format, String exceptionMsg) {
+        String filepath1 = getFixturePath(file1);
+        String filepath2 = getFixturePath(file2);
+
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> Differ
                 .generate(filepath1, filepath2, format));
-
         assertEquals(exceptionMsg, exception.getMessage());
     }
 
+    @ParameterizedTest
+    @CsvSource({
+        "json",
+        "yml"
+    })
+    public void generateTest(String format) throws Exception {
+        String filePath1 = getFixturePath("file1." + format);
+        String filePath2 = getFixturePath("file2." + format);
+
+        assertGeneratedResult(filePath1, filePath2, getFixturePath("expectedStylish.txt"), "stylish");
+        // Можно добавить дополнительные проверки или тесты здесь в зависимости от ваших потребностей
+    }
 }

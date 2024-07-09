@@ -9,12 +9,12 @@ public class Parser {
 
     private static Map<String, Object> parseYaml(String content) throws Exception {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        return mapper.readValue(content, Map.class);
+        return mapper.readValue(content, new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() { });
     }
 
     private static Map<String, Object> parseJson(String content) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(content, Map.class);
+        return mapper.readValue(content, new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() { });
     }
 
     public static Map<String, Object> parse(String content, String dataFormat) throws Exception {
@@ -25,7 +25,6 @@ public class Parser {
             case "json":
                 return parseJson(content);
             default:
-
                 System.err.println("Unknown format: '" + dataFormat + "'");
                 break;
         }
