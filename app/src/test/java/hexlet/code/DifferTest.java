@@ -67,7 +67,7 @@ class DifferTest {
         String filepath1 = getFixturePath(file1);
         String filepath2 = getFixturePath(file2);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> Differ
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> Differ
                 .generate(filepath1, filepath2, format));
         assertEquals(exceptionMsg, exception.getMessage());
     }
@@ -82,6 +82,6 @@ class DifferTest {
         String filePath2 = getFixturePath("file2." + format);
 
         assertGeneratedResult(filePath1, filePath2, getFixturePath("expectedStylish.txt"), "stylish");
-        // Можно добавить дополнительные проверки или тесты здесь в зависимости от ваших потребностей
+
     }
 }

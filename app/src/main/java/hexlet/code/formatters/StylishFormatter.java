@@ -19,7 +19,7 @@ public class StylishFormatter extends Formatter {
 
         List<DiffProperty> sortedDiff = diff.stream()
                 .sorted((a, b) -> a.getKey().compareTo(b.getKey()))
-                .collect(Collectors.toList());
+                .toList();
 
         for (DiffProperty property : sortedDiff) {
             switch (property.getType()) {
@@ -63,13 +63,13 @@ public class StylishFormatter extends Formatter {
         if (value == null) {
             return "null";
         } else if (value instanceof List || value instanceof Map) {
-            return formatComplexValue(value);
+            return stringify(value);
         } else {
             return value.toString();
         }
     }
 
-    private String formatComplexValue(Object value) {
+    private String stringify(Object value) {
         if (value instanceof List<?> list) {
             return list.stream()
                     .map(Object::toString)

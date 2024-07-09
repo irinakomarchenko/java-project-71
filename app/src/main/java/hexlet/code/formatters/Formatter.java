@@ -14,7 +14,7 @@ public class Formatter {
             case "stylish" -> STYLISH_FORMATTER.format(diff);
             case "json" -> JSON_FORMATTER.format(diff);
             case "plain" -> PLAIN_FORMATTER.format(diff);
-            default -> throw new IllegalArgumentException("Unsupported format: " + format);
+            default -> throw new RuntimeException("Unsupported format: " + format);
         };
     }
 }
